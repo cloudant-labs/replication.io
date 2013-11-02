@@ -28,15 +28,15 @@ html {
 
 body {
   font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #0099cc;
-  background-color: #072234;
+  color: rgb(64, 58, 54);
+  background-color: white;
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
 
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #f2f2f2;
+  color: rgb(85, 81, 78);
   margin: 36px 0 10px;
 }
 
@@ -51,7 +51,7 @@ h1, h2, h3 {
 
 h1,h2, h3 {
   display: block;
-  border-bottom: 1px solid #11517b;
+  border-bottom: 1px solid rgb(221, 221, 221);
   padding-bottom: 10px;
 }
 
@@ -77,7 +77,7 @@ a, h1 span {
 }
 
 a:hover {
-  color: #e91d25;
+  color: #639620;
   transition: background 0.3s, color 0.3s, box-shadow 0.3s;
 }
 
@@ -206,11 +206,15 @@ td:nth-child(2) {
 
 header {
   /* background-color: #072234; */
-  color: #FDFDFB;
+  color: #d6d6cf;
   /* padding: 2em 3%; */
   /* margin: 0 0 2em 0; */
   text-align: center;
   -webkit-font-smoothing: antialiased;
+}
+header h1 a {
+  text-decoration: none;
+  font-weight: inherit;
 }
 
 
@@ -220,7 +224,7 @@ section {
   max-width: 650px;
   padding: 2em 3%;
   margin: 0 0 2em 0;
-  background-color: #092b41;
+  background-color: rgba(51, 50, 49, 0.05);
 }
 
 
@@ -249,7 +253,7 @@ h1.header {
 }
 
 header h1, a.header, a.name, header a {
-  color: #fff;
+  color: rgb(85, 81, 78);
 }
 
 nav {
@@ -262,19 +266,19 @@ nav a:visited {
   display: inline-block;
   padding: .25em 1.5em;
   font-size: 1.4em;
-  color: white;
   text-decoration: none;
-  border-bottom: 1px solid #0b334e;
+  border-bottom: 1px solid rgb(221, 221, 221);
 }
 
 nav a:first-child {
-  border-top: 1px solid #0b334e;
+  border-top: 1px solid rgb(221, 221, 221);
 }
 
 nav a:hover,
 nav a:active,
-nav a:focus {
-  background: #0099cc;
+nav a:focus,
+nav a.active{
+  background: #f7f7f7;
 }
 
 a.name {
@@ -398,13 +402,14 @@ a.buttons:hover {
     width: 63%;
     padding-right: 6%;
     padding-left: 6%;
-    box-shadow: -4px 0 0 1px rgba(0,0,0,0.2);
+    box-shadow: -4px 0 0 1px rgba(51, 50, 49, 0.2);
   }
 
   nav a,
   nav a:link,
   nav a:visited {
     display: block;
+    color: #5b6e7b;
   }
 
   nav {
@@ -413,12 +418,15 @@ a.buttons:hover {
 
   nav a:after {
     content: "❯";
-    color: #0b334e;
+    color: #5b6e7b;
     position: absolute;
     right: 1em;
   }
+  nav a:hover {
+    color: rgb(140, 198, 63);
+  }
   nav a:hover:after {
-    color: white;
+    color: rgb(140, 198, 63);
   }
 
   .speakers img {

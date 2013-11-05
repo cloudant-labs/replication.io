@@ -1,0 +1,18 @@
+[
+  {
+    "from": "/",
+    "to": "/_show/html/index"
+  },
+  {
+    "from": "/:doc_id",
+    "to": "/_show/html/:doc_id"
+  },
+  {
+    "from": "/stylesheets/*",
+    "to": "/stylesheets/*"
+  },
+  {
+    "from": "/javascripts/*",
+    "to": "/javascripts/*"
+  }
+]

@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>{{#page.title}}{{page.title}} - {{/page.title}}replication.io</title>
+    <base href="{{{site.base_url}}}" />
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <div style="text-align:center">
+          <h1><a href="index">replication.io</a></h1>
+          <p>multi-master replication. defined.</p>
+        </div>
+        <nav>
+          <a href="index" class="{{#is_active}}index{{/is_active}}">Home</a>
+          <a href="spec" class="{{#is_active}}spec{{/is_active}}">Specification</a>
+          <a href="databases" class="{{#is_active}}databases{{/is_active}}">Databases</a>
+        </nav>
+      </header>
+      <section>
+      {{{page.html}}}
+      <footer>
+        <p>This project is maintained by <a href="http://cloudant.com/">Cloudant</a>.
+        <small>Hosted on GitHub Pages.</small></p>
+      </footer>
+      </section>
+    </div>
+    {{#req}}<textarea class="debug">{{{req}}}</textarea>{{/req}}
+    <script src="javascripts/scale.fix.js"></script>
+  </body>
+</html>

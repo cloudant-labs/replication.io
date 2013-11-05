@@ -1,0 +1,160 @@
+<div class="section" id="couchdb-replication-protocol">
+<span id="replication-protocol"></span><h1>HTTP Replication Protocol<a class="headerlink" href="#couchdb-replication-protocol" title="Permalink to this headline">¶</a></h1>
+<p>The <strong>Replication protocol</strong> is a protocol for synchronizing
+documents between 2 peers over HTTP/1.1.</p>
+<div class="section" id="language">
+<h2>Language<a class="headerlink" href="#language" title="Permalink to this headline">¶</a></h2>
+<p>The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”,
+“SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this
+document are to be interpreted as described in <span class="target" id="index-0"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2119.html"><strong>RFC 2119</strong></a>.</p>
+</div>
+<div class="section" id="goals">
+<h2>Goals<a class="headerlink" href="#goals" title="Permalink to this headline">¶</a></h2>
+<p>The Replication protocol is a synchronization protocol for
+synchronizing documents between 2 peers over HTTP/1.1.</p>
+<p>The protocol can be used between products that
+implement it. The reference implementation, written in <a class="reference external" href="http://erlang.org">Erlang</a>, is
+provided by the <a class="reference external" href="https://github.com/apache/couchdb/tree/master/src/couch_replicator">couch_replicator</a> module available in Apache CouchDB.</p>
+<p>The replication protocol is using the <a class="reference external" href="http://wiki.apache.org/couchdb/Reference">CouchDB REST API</a> and so is based on HTTP and
+the Apache CouchDB MVC Data model. The primary goal of this
+specification is to describe the CouchDB replication algorithm.</p>
+</div>
+<div class="section" id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>ID:</dt>
+<dd>An identifier (could be an UUID) as described in <span class="target" id="index-1"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc4122.html"><strong>RFC 4122</strong></a></dd>
+<dt>Sequence:</dt>
+<dd>An ID provided by the changes feed. It can be numeric but not
+necessarily.</dd>
+<dt>Revision:</dt>
+<dd>(to define)</dd>
+<dt>Document</dt>
+<dd>A document is JSON entity with a unique ID and revision.</dd>
+<dt>Database</dt>
+<dd>A collection of documents with a unique URI</dd>
+<dt>URI</dt>
+<dd>An uri is defined by the <span class="target" id="index-2"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc2396.html"><strong>RFC 2396</strong></a> . It can be an URL as defined
+in <span class="target" id="index-3"></span><a class="rfc reference external" href="http://tools.ietf.org/html/rfc1738.html"><strong>RFC 1738</strong></a>.</dd>
+<dt>Source</dt>
+<dd>Database from where the Documents are replicated</dd>
+<dt>Target</dt>
+<dd>Database where the Document are replicated</dd>
+<dt>Checkpoint</dt>
+<dd>Last source sequence ID</dd>
+</dl>
+</div>
+<div class="section" id="algorithm">
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Get unique identifiers for the Source and Target based on their URI if
+replication task ID is not available.</li>
+<li>Save this identifier in a special Document named <cite>_local/&lt;uniqueid&gt;</cite>
+on the Target database. This document isn’t replicated. It will
+collect the last Source sequence ID, the Checkpoint, from the
+previous replication process.</li>
+<li>Get the Source changes feed by passing it the Checkpoint using the
+<cite>since</cite> parameter by calling the <cite>/&lt;source&gt;/_changes</cite> URL. The
+changes feed only return a list of current revisions.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This step can be done continuously using the <cite>feed=longpoll</cite> or
+<cite>feed=continuous</cite> parameters. Then the feed will continuously get
+the changes.</p>
+</div>
+<ol class="arabic simple" start="4">
+<li>Collect a group of Document/Revisions ID pairs from the <strong>changes
+feed</strong> and send them to the target databases on the
+<cite>/&lt;target&gt;/_revs_diffs</cite> URL. The result will contain the list of
+revisions <strong>NOT</strong> in the Target.</li>
+<li>GET each revisions from the source Database by calling the URL
+<cite>/&lt;source&gt;/&lt;docid&gt;?revs=true&amp;open_revs`=&lt;revision&gt;</cite> . This
+will get the document with teh parent revisions. Also don’t forget to
+get attachments that aren’t already stored at the target. As an
+optimisation you can use the HTTP multipart api to get all.</li>
+<li>Collect a group of revisions fetched at previous step and store them
+on the target database using the <a class="reference external" href="http://wiki.apache.org/couchdb/HTTP_Document_API#Bulk_Docs">Bulk Docs</a> API
+with the <cite>new_edit: false</cite> JSON property to preserve their revisions
+ID.</li>
+<li>After the group of revision is stored on the Target, save
+the new Checkpoint on the Source.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>Even if some revisions have been ignored the sequence should be
+take in consideration for the Checkpoint.</li>
+<li>To compare non numeric sequence ordering, you will have to keep an
+ordered list of the sequences IDS as they appear in the _changes
+feed and compare their indices.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="filter-replication">
+<h2>Filter replication<a class="headerlink" href="#filter-replication" title="Permalink to this headline">¶</a></h2>
+<p>The replication can be filtered by passing the <cite>filter</cite> parameter to the
+changes feeds with a function name. This will call a function on each
+changes. If this function return True, the document will be added to the
+feed.</p>
+</div>
+<div class="section" id="optimisations">
+<h2>Optimisations<a class="headerlink" href="#optimisations" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>The system should run each steps in parallel to reduce the latency.</li>
+<li>The number of revisions passed to the step 3 and 6 should be large
+enough to reduce the bandwidth and make sure to reduce the latency.</li>
+</ul>
+</div>
+<div class="section" id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="../api/database/common.html#head--db" title="HEAD /{db}"><tt class="xref http http-head docutils literal"><span class="pre">HEAD</span> <span class="pre">/{db}</span></tt></a> – Check Database existence</li>
+<li><a class="reference internal" href="../api/database/compact.html#post--db-_ensure_full_commit" title="POST /{db}/_ensure_full_commit"><tt class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/{db}/_ensure_full_commit</span></tt></a> – Ensure that all changes are stored
+on disk</li>
+<li><em>:get:`/{db}/_local/{id}`</em> – Read the last Checkpoint</li>
+<li><em>:put:`/{db}/_local/{id}`</em> – Save a new Checkpoint</li>
+</ul>
+<div class="section" id="push-only">
+<h3>Push Only<a class="headerlink" href="#push-only" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../api/database/common.html#put--db" title="PUT /{db}"><tt class="xref http http-put docutils literal"><span class="pre">PUT</span> <span class="pre">/{db}</span></tt></a> – Create Target if it not exists and option was provided</li>
+<li><a class="reference internal" href="../api/database/misc.html#post--db-_revs_diff" title="POST /{db}/_revs_diff"><tt class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/{db}/_revs_diff</span></tt></a> – Locate Revisions that are not known to the
+Target</li>
+<li><a class="reference internal" href="../api/database/bulk-api.html#post--db-_bulk_docs" title="POST /{db}/_bulk_docs"><tt class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/{db}/_bulk_docs</span></tt></a> – Upload Revisions to the Target</li>
+<li><a class="reference internal" href="../api/document/common.html#put--db-docid" title="PUT /{db}/{docid}"><tt class="xref http http-put docutils literal"><span class="pre">PUT</span> <span class="pre">/{db}/{docid}</span></tt></a>?new_edits=false – Upload a single Document with
+attachments to the Target</li>
+</ul>
+</div>
+<div class="section" id="pull-only">
+<h3>Pull Only<a class="headerlink" href="#pull-only" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../api/database/changes.html#get--db-_changes" title="GET /{db}/_changes"><tt class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/{db}/_changes</span></tt></a> – Locate changes since on Source the last pull.
+The request uses next query parameters:<ul>
+<li><tt class="docutils literal"><span class="pre">style=all_docs</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">feed=feed</span></tt> , where feed is <a class="reference internal" href="../api/database/changes.html#changes-normal"><em>normal</em></a> or
+<a class="reference internal" href="../api/database/changes.html#changes-longpoll"><em>longpoll</em></a></li>
+<li><tt class="docutils literal"><span class="pre">limit=limit</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">heartbeat=heartbeat</span></tt></li>
+</ul>
+</li>
+<li><a class="reference internal" href="../api/document/common.html#get--db-docid" title="GET /{db}/{docid}"><tt class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/{db}/{docid}</span></tt></a> – Retrieve a single Document from Source with attachments.
+The request uses next query parameters:<ul>
+<li><tt class="docutils literal"><span class="pre">open_revs=revid</span></tt> - where <tt class="docutils literal"><span class="pre">revid</span></tt> is the actual Document Revision at the
+moment of the pull request</li>
+<li><tt class="docutils literal"><span class="pre">revs=true</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">atts_since=lastrev</span></tt></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/couchbaselabs/TouchDB-iOS/wiki/Replication-Algorithm">TouchDB Ios wiki</a></li>
+<li><a class="reference external" href="http://wiki.apache.org/couchdb/Replication">CouchDB documentation</a></li>
+<li>CouchDB <a class="reference external" href="http://guide.couchdb.org/draft/notifications.html">change notifications</a></li>
+</ul>
+</div>
+</div>

@@ -14,7 +14,7 @@ function(doc, req) {
           }
         },
         site: {
-          base_url: '/' + req.path.slice(0,3).join('/') + '/_rewrite/'
+          /*base_url: '/' + req.path.slice(0,3).join('/') + '/_rewrite/'*/
         },
         req: (debug ? JSON.stringify(req, null, '\t') : '')
       };

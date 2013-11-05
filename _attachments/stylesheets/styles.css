@@ -382,6 +382,16 @@ a.buttons:hover {
   margin: 0 0 10px;
 }
 
+.well {
+  min-height: 20px;
+  padding: 19px;
+  margin-bottom: 20px;
+  background-color: rgb(252, 252, 252);
+  border: 1px solid rgb(227, 227, 227);
+  border-radius: 4px;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05) inset;
+}
+
 .debug {
   bottom: 0px;
   left: 0px;

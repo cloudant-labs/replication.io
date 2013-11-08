@@ -86,8 +86,7 @@ a small {
 }
 
 em {
-  color: white;
-  /*font-style: italic;*/
+  font-style: italic;
 }
 
 strong {

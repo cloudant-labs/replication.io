@@ -1,4 +1,4 @@
-[replication.io](http://replication.io/) is a community center for databases
+[replication.io](http://www.replication.io/) is a community center for databases
 and services that support Apache CouchDB-style replication. We are working
 to expand the definition and specification to encompass the growing family
 of databases that support HTTP-based, multi-master replication.

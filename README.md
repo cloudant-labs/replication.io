@@ -1,19 +1,28 @@
-### What is replication.io
+[replication.io](http://replication.io/ is a community center for databases
+and services that support Apache CouchDB-style replication. We are working
+to expand the definition and specification to encompass the growing family
+of databases that support HTTP-based, multi-master replication.
 
-[replication.io](http://replication.io/) is intended to be a community center for databases and services that support "Apache CouchDB-style replication." We are working on building out the definition/spec, testing compatibility, and exploring what's next for multi-master, MVCC-based replication.
+## Objective
 
-### Why this is needed
+Apache CouchDB was created with multi-master replication built into its foundation.
+The list of databases supporting this multi-master replication style has grown over
+the past half decade.
 
-[Apache CouchDB](http://couchdb.apache.org/) was created with multi-master replication built into its foundation. The list of databases supporting this multi-master replication style continues to grow. The goal of this project and web site is to combine our communities around our shared strength.
+> The goal of this project is to combine our communities around our shared strength.
 
-### Who this is for
+## Contribute
 
-Users. Freeing user data to move with the user--among all the various types of devices they use now and will use in the future--is key to going "beyond the cloud" and enabling an Internet of Things that is sustainable and resilient.
+First steps are focused on consolidating all the content about "CouchDB-style
+replication." Next steps will be focused on simplifying the specification document,
+making it broadly inclusive, re-implementable, and testable.
 
-### Beyond Databases?
+The largest part of work needed is building a "testing rig" that would allow all
+databases to test-against-the-spec. There are various "testing rigs" scattered
+throughout the communities. Consolidating those efforts would be a good first step.
 
-The replication format and process is a simple exchange of document and revision identifiers. It has been implemented in single node, multi node, mobile, and even web browser-based databases. It can go even farther. Anything that can support a by-sequence index and tracks changes to all the contents of something (be it a database, a file system, web service, or even hardware-monitored storage), could support multi-master replication.
+### Pull Requests Welcome!
 
-### Collaborate and Contribute
+## License
 
-We encourage anyone with an interest and/or implementation in "CouchDB-style replication" to join this documentation and testing effort. We hope to build community around our shared strength regardless of our implementation or distribution channel choices.
+[Apache License 2.0](http://choosealicense.com/licenses/apache/) (unless specified otherwise)
